@@ -70,6 +70,7 @@ export default function App() {
   const [books, setBooks] = useState([]);
   const [search, setSearch] = useState('');
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(false);
   const [selectedBook, setSelectedBook] = useState(null);
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -83,14 +84,15 @@ export default function App() {
 
   const loadInitialBooks = async () => {
     setLoading(true);
+    setError(false);
     try {
-      // Usando fetch em vez de axios para maior compatibilidade no Snack
-      const response = await fetch(`${GOOGLE_BOOKS_API}?q=subject:fiction&orderBy=newest&maxResults=15`);
+      const response = await fetch(`${GOOGLE_BOOKS_API}?q=subject:fiction&orderBy=newest&maxResults=20`);
+      if (!response.ok) throw new Error("Erro na API");
       const data = await response.json();
       setBooks(data.items || []);
     } catch (e) { 
       console.error("Erro ao carregar livros:", e);
-      Alert.alert("Erro", "Não foi possível carregar os livros iniciais.");
+      setError(true);
     }
     setLoading(false);
   };
@@ -101,13 +103,15 @@ export default function App() {
       return;
     }
     setLoading(true);
+    setError(false);
     try {
-      const response = await fetch(`${GOOGLE_BOOKS_API}?q=${encodeURIComponent(search)}&maxResults=20`);
+      const response = await fetch(`${GOOGLE_BOOKS_API}?q=${encodeURIComponent(search)}&maxResults=30`);
+      if (!response.ok) throw new Error("Erro na busca");
       const data = await response.json();
       setBooks(data.items || []);
     } catch (e) { 
       console.error("Erro na busca:", e);
-      Alert.alert("Erro", "Falha ao pesquisar livros.");
+      setError(true);
     }
     setLoading(false);
   };
@@ -121,7 +125,7 @@ export default function App() {
         setLoading(false);
       }, 800);
     } else {
-      Alert.alert("Erro", "E-mail inválido ou senha curta (mín. 6 caracteres).");
+      Alert.alert("Erro", "E-mail inválido ou senha curta.");
     }
   };
 
@@ -129,7 +133,7 @@ export default function App() {
     if (email.includes('@') && password.length >= 6 && name.length > 2) {
       setLoading(true);
       setTimeout(() => {
-        Alert.alert("Sucesso!", "Conta criada com sucesso.");
+        Alert.alert("Sucesso!", "Conta criada.");
         setCurrentScreen('Login');
         setLoading(false);
       }, 800);
@@ -152,7 +156,7 @@ export default function App() {
       <View style={styles.header}>
         <View style={styles.headerTop}>
           <Text style={styles.headerTitle}>Entre Linhas</Text>
-          <TouchableOpacity onPress={() => {setUser(null); setCurrentScreen('Login'); setEmail(''); setPassword('');}}>
+          <TouchableOpacity onPress={() => {setUser(null); setCurrentScreen('Login'); setEmail(''); setPassword(''); setBooks([]);}}>
             <Text style={styles.logoutText}>Sair</Text>
           </TouchableOpacity>
         </View>
@@ -175,6 +179,13 @@ export default function App() {
           <ActivityIndicator size="large" color="#3182CE" />
           <Text style={styles.loadingText}>Buscando livros...</Text>
         </View>
+      ) : error ? (
+        <View style={styles.center}>
+          <Text style={styles.errorText}>Ops! Não conseguimos carregar os livros.</Text>
+          <TouchableOpacity style={styles.retryButton} onPress={loadInitialBooks}>
+            <Text style={styles.retryButtonText}>Tentar Novamente</Text>
+          </TouchableOpacity>
+        </View>
       ) : (
         <FlatList 
           data={books}
@@ -194,6 +205,7 @@ export default function App() {
           keyExtractor={item => item.id}
           contentContainerStyle={styles.listContent}
           showsVerticalScrollIndicator={false}
+          ListEmptyComponent={<Text style={styles.emptyText}>Nenhum livro encontrado.</Text>}
         />
       )}
 
@@ -254,8 +266,12 @@ const styles = StyleSheet.create({
   bookAuthor: { fontSize: 14, color: '#718096', marginTop: 6, marginBottom: 10 },
   badge: { backgroundColor: '#EBF8FF', paddingHorizontal: 10, paddingVertical: 4, borderRadius: 6, alignSelf: 'flex-start' },
   badgeText: { color: '#3182CE', fontSize: 12, fontWeight: 'bold' },
-  center: { flex: 1, justifyContent: 'center', alignItems: 'center' },
+  center: { flex: 1, justifyContent: 'center', alignItems: 'center', padding: 20 },
   loadingText: { marginTop: 10, color: '#4A5568' },
+  errorText: { fontSize: 16, color: '#E53E3E', textAlign: 'center', marginBottom: 20 },
+  retryButton: { backgroundColor: '#3182CE', paddingHorizontal: 20, paddingVertical: 12, borderRadius: 10 },
+  retryButtonText: { color: '#FFFFFF', fontWeight: 'bold' },
+  emptyText: { textAlign: 'center', color: '#718096', marginTop: 50, fontSize: 16 },
   modalContainer: { flex: 1, backgroundColor: 'rgba(0,0,0,0.6)', justifyContent: 'flex-end' },
   modalContent: { backgroundColor: '#FFFFFF', borderTopLeftRadius: 30, borderTopRightRadius: 30, padding: 25, height: '85%' },
   closeButton: { alignSelf: 'flex-end', padding: 10 },
