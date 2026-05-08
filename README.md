@@ -19,7 +19,7 @@ Aplicativo mobile desenvolvido em **React Native com Expo**, focado na visualiza
   https://github.com/Andrelgamer1900/entre-linhas
 
 - **Demonstração Funcional (Expo Snack):**  
-  https://snack.expo.dev/@andre_l.cc/entre_linhas_app
+  https://snack.expo.dev/@andre_l.cc/entre_linhas
 
 ---
 
