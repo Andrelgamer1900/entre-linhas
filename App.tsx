@@ -5,12 +5,6 @@ import {
   Modal, ScrollView, KeyboardAvoidingView, Platform, Alert
 } from 'react-native';
 
-/**
- * NOTA PARA O PROFESSOR:
- * Esta é uma versão CONSOLIDADA em TypeScript para execução no Expo Snack.
- * A versão oficial MODULARIZADA (separada em pastas src/screens, src/services, etc.)
- * está disponível no nosso repositório GitHub para melhor organização e manutenção.
- */
 
 // --- TIPAGENS (TypeScript) ---
 interface Book {
